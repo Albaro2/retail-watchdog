@@ -1,0 +1,27 @@
+# Excluir archivos de control de versiones
+.git
+.gitignore
+
+# CRÍTICO: Excluir secretos y entornos locales
+.env
+.venv/
+.files/
+
+# Excluir archivos temporales de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Excluir archivos de sistema de Mac
+.DS_Store
+
+# Excluir tests y notebooks (no hacen falta en producción)
+tests/
+notebooks/
+README.md
