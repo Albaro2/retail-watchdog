@@ -1,24 +1,11 @@
 🛡️ Retail Watchdog: AI Supply Chain Copilot
 
 
-```
+
 ![alt text](https://img.shields.io/badge/Cloud-Azure_OpenAI-0078D4?logo=microsoftazure)
-```
-
-
-```
 ![alt text](https://img.shields.io/badge/Language-Python_3.11-3776AB?logo=python)
-```
-
-
-```
 ![alt text](https://img.shields.io/badge/Orchestration-LangGraph_Stateful-FF6F00)
-```
-
-
-```
 ![alt text](https://img.shields.io/badge/Safety-Human_in_the_Loop-red)
-```
 
 
 Role: Internal Operational Copilot (B2E) Status: Production-Ready MVP (Dockerized)
@@ -92,3 +79,4 @@ docker exec -it <CONTAINER_ID> sqlite3 data/inventory.db "SELECT * FROM refunds_
 Expected Result: Registro con order_id, reason y confirmed=1.
 6. Enterprise Roadmap (Gap Analysis)
 FeatureMVP (Current)Enterprise ProductionDatabaseSQLite (Local)Azure SQL Database (Serverless)Secrets.env / Environment VarsAzure Key VaultSearchChromaDB (Local)Azure AI Search (Semantic Ranker)ObservabilityConsole LogsAzure Application Insights
+
