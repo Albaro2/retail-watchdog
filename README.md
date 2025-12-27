@@ -1,103 +1,94 @@
-# 🛒 Retail Watchdog: AI Supply Chain Optimizer
+🛡️ Retail Watchdog: AI Supply Chain Copilot
 
-![Azure](https://img.shields.io/badge/Cloud-Azure_OpenAI-0078D4?logo=microsoftazure)
-![Python](https://img.shields.io/badge/Language-Python_3.11-3776AB?logo=python)
-![Docker](https://img.shields.io/badge/Deployment-Docker-2496ED?logo=docker)
-![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph_ReAct-FF6F00)
 
-> **Status:** MVP / Proof of Concept (Ready for Container Apps)
+```
+![alt text](https://img.shields.io/badge/Cloud-Azure_OpenAI-0078D4?logo=microsoftazure)
+```
 
-## 1. The Business Challenge (El Desafío)
 
-In modern Retail, the disconnection between **Inventory Systems** (SQL) and **Corporate Policies** (Unstructured PDFs) creates friction in customer support.
+```
+![alt text](https://img.shields.io/badge/Language-Python_3.11-3776AB?logo=python)
+```
 
-* **The Problem:** Support agents take an average of **15 minutes** to cross-reference stock data with refund policies to make a decision.
-* **The Impact:** High operational costs and low NPS (Net Promoter Score) due to delays.
 
-## 2. The Solution (La Solución)
+```
+![alt text](https://img.shields.io/badge/Orchestration-LangGraph_Stateful-FF6F00)
+```
 
-**Retail Watchdog** is an Autonomous AI Agent (Agentic Workflow) that orchestrates complex decision-making without human intervention.
 
-It is not a chatbot; it is a **reasoning engine** that:
+```
+![alt text](https://img.shields.io/badge/Safety-Human_in_the_Loop-red)
+```
 
-1. **Verifies** real-time stock status via SQL connections.
-2. **Retrieves** the specific applicable return policy via Vector Search (RAG).
-3. **Executes** the compliant business decision (Refund vs. Coupon).
 
-**Result:** Resolution time reduced from 15 min to **<10 seconds**.
+Role: Internal Operational Copilot (B2E) Status: Production-Ready MVP (Dockerized)
+1. The Business Challenge (El Desafío)
+En el sector Retail, la resolución de incidencias logísticas sufre de dos cuellos de botella críticos:
+* Fragmentación de Datos: Los agentes pierden ~15 min saltando entre el inventario (SQL) y normativas legales (PDF) para cada ticket.
+* Riesgo Financiero: Automatizar reembolsos mediante IA sin supervisión genera un riesgo de alucinación inasumible en entornos corporativos.
+2. The Solution (La Solución)
+Retail Watchdog no es un chatbot de FAQs; es un Agente de Razonamiento con Estado diseñado como copiloto para equipos de soporte.
+1. Auditoría en Tiempo Real: Cruza datos de stock (SQL) con cláusulas de compensación (RAG).
+2. Seguridad Determinista (Dual-Gate): Implementa un freno a nivel de código. El agente no puede ejecutar un reembolso sin una validación humana explícita en el chat.
+3. Trazabilidad Forense: Cada acción queda registrada en un log de auditoría inmutable para cumplimiento normativo (Compliance).
+Impacto: Reducción del tiempo medio de resolución (AHT) de 15 min a <10 segundos.
+3. Technical Architecture (High Level)
+codeMermaid
 
----
-
-## 3. Technical Architecture (High Level)
-
-This solution implements the **ReAct Pattern** (Reason + Act) on Azure.
-
-```mermaid
+```
 graph TD
-    User[👤 Business User] -->|Chat Interface| UI[💻 Chainlit UI]
-    UI -->|Stream| Orchestrator[🧠 LangGraph Orchestrator]
+    User[👤 Operations Analyst] -->|Confirm/Action| UI[💻 Chainlit UI]
+    UI -->|Thread_ID| Orchestrator[🧠 LangGraph Stateful Engine]
     
     subgraph "Azure AI Foundry"
         Orchestrator <-->|Reasoning| GPT[🤖 GPT-4o]
         RAGTool <-->|Embeddings| Emb[🔤 text-embedding-3]
     end
     
-    subgraph "Agent Logic (Nodes)"
-        Orchestrator -->|Decide| Router{Decision}
-        Router -->|Need Data?| SQLTool[🛠️ SQL Inventory Tool]
-        Router -->|Need Rules?| RAGTool[🛠️ Policy RAG Tool]
+    subgraph "Safety Logic (Tools)"
+        Orchestrator --> Router{Decision}
+        Router -->|Read| SQLTool[📊 Inventory SQL]
+        Router -->|Verify| RAGTool[📜 Policy RAG]
+        Router -->|Write| RefundTool[🛡️ Safety-Gate Refund]
     end
     
-    subgraph "Data Persistence"
-        SQLTool <-->|Query| DB[(🗄️ SQLite / Azure SQL)]
-        RAGTool <-->|Search| Vector[(📚 ChromaDB / AI Search)]
+    subgraph "Audit & Persistence"
+        RefundTool -->|Log| Audit[(📝 Audit Trail)]
+        SQLTool <--> DB[(🗄️ SQLite / Azure SQL)]
+        RAGTool <--> Vector[(📚 ChromaDB)]
     end
 ```
 
-### The Stack
+Advanced Features implemented:
+* Stateful Memory: Uso de MemorySaver en LangGraph para mantener el contexto multicanal sin re-enviar el historial (Token Efficiency).
+* Boolean Safety Gate: La herramienta de escritura exige el parámetro human_confirmed=True, forzando el protocolo HITL (Human-in-the-loop).
+* Clean Architecture: Desacoplamiento total entre la lógica del agente y la interfaz de usuario.
+4. How to Run (Docker)
+Prerequisites
+* Docker Desktop.
+* Azure OpenAI Endpoint & Key.
+1. Build the Image
+codeBash
 
-* **Brain:** Azure OpenAI (gpt-4o) for complex reasoning.
-* **Orchestration:** LangGraph (Stateful Graph, preventing infinite loops).
-* **Data Layer:** Hybrid approach using SQL (Transactional) + Vector Store (Knowledge).
-* **Deployment:** Dockerized Microservice (Debian-slim based).
-
-## 4. How to Run (Docker)
-
-This project is containerized for immediate deployment.
-
-### Prerequisites
-
-* Docker Desktop installed.
-* Azure OpenAI Endpoint & API Key.
-
-### 1. Build the Image
-
-```bash
-docker build -t retail-watchdog:v1 .
+```
+docker build -t retail-watchdog:gold .
 ```
 
-### 2. Run the Container
+2. Run the Container
+codeBash
 
-Inject your Azure credentials at runtime (replace with your values):
-
-```bash
-docker run -p 8000:8000 \
-  -e AZURE_OPENAI_API_KEY="your_key_here" \
-  -e AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/" \
-  -e AZURE_OPENAI_DEPLOYMENT_NAME="gpt-4o" \
-  -e AZURE_OPENAI_API_VERSION="2024-05-01-preview" \
-  -e AZURE_OPENAI_EMBEDDING_DEPLOYMENT="text-embedding-3-small" \
-  retail-watchdog:v1
+```
+docker run -p 8000:8000 --env-file .env retail-watchdog:gold
 ```
 
-### 3. Access
+5. System Validation (Forensic Check)
+Para validar que el sistema es transaccional y no solo genera texto, tras una ejecución de reembolso, puede auditarse la base de datos interna del contenedor:
+codeBash
 
-Open your browser at http://localhost:8000.
+```
+docker exec -it <CONTAINER_ID> sqlite3 data/inventory.db "SELECT * FROM refunds_log;"
+```
 
-## 5. Demo Scenarios
-
-| Scenario | Input Prompt | Expected Agent Behavior |
-|----------|-------------|------------------------|
-| Happy Path | "Status of order ORD-1001" | Checks SQL → Confirms Delivery. |
-| Complex Logic | "Problem with order ORD-9902" | Checks SQL (Stock 0) → Checks Policy (RAG) → Offers Refund. |
-| Policy Query | "Return policy for laptops?" | Skips SQL → Checks Policy (RAG) → Explains rules. |
+Expected Result: Registro con order_id, reason y confirmed=1.
+6. Enterprise Roadmap (Gap Analysis)
+FeatureMVP (Current)Enterprise ProductionDatabaseSQLite (Local)Azure SQL Database (Serverless)Secrets.env / Environment VarsAzure Key VaultSearchChromaDB (Local)Azure AI Search (Semantic Ranker)ObservabilityConsole LogsAzure Application Insights
